@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Appointment;
-use App\Models\Doctor; // إضافة هذه السطر
 use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
@@ -16,8 +15,7 @@ class AppointmentController extends Controller
 
     public function create()
     {
-        $doctors = Doctor::all(); // جلب الأطباء لصفحة الإنشاء
-        return view('appointments.create', compact('doctors')); // تمريرهم للفيو
+        return view('appointments.create'); // بدون تمرير $doctors
     }
 
     public function store(Request $request)
@@ -27,10 +25,14 @@ class AppointmentController extends Controller
             'patient_phone' => 'required',
             'appointment_date' => 'required',
             'appointment_time' => 'required',
-            'doctor_id' => 'required', // تأكدي من إضافة هذا التحقق
         ]);
 
-        Appointment::create($request->all()); // يمكنك استخدام all() للاختصار إذا كانت الأسماء مطابقة
+        Appointment::create([
+            'patient_name' => $request->patient_name,
+            'patient_phone' => $request->patient_phone,
+            'appointment_date' => $request->appointment_date,
+            'appointment_time' => $request->appointment_time,
+        ]);
 
         return redirect()->route('appointments.index');
     }
@@ -38,8 +40,7 @@ class AppointmentController extends Controller
     public function edit(string $id)
     {
         $appointment = Appointment::findOrFail($id);
-        $doctors = Doctor::all(); // جلب الأطباء لصفحة التعديل
-        return view('appointments.edit', compact('appointment', 'doctors')); // تمريرهم للفيو
+        return view('appointments.edit', compact('appointment')); // بدون تمرير $doctors
     }
 
     public function update(Request $request, string $id)
@@ -51,7 +52,6 @@ class AppointmentController extends Controller
             'patient_phone' => $request->patient_phone,
             'appointment_date' => $request->appointment_date,
             'appointment_time' => $request->appointment_time,
-            'doctor_id' => $request->doctor_id, // لا تنسي تحديث حقل الطبيب
         ]);
 
         return redirect()->route('appointments.index');
